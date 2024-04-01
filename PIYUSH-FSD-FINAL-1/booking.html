@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Booking</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="footer-style.css">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <style>
+        /* Custom styles can be added here */
+        .seat {
+            width: 40px;
+            height: 40px;
+            margin: 5px;
+            background-color: #ccc;
+            display: inline-block;
+            cursor: pointer;
+            border-radius: 5px;
+            position: relative;
+        }
+
+        .selected {
+            background-color: #007bff !important;
+            color: #fff;
+        }
+
+        .booked {
+            background-color: #666666 !important;
+            cursor: not-allowed;
+        }
+
+        .disabled {
+            background-color: #ff0000 !important;
+            cursor: not-allowed;
+        }
+
+        .seat-number {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+        }
+
+        #receipt {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Movie Booking</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="index.html">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="about.html">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="contact.html">Contact Us</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="login.html">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="signup.html">Sign Up</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container my-4">
+        <h1>Movie Booking</h1>
+        <p>Complete your booking details below:</p>
+
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Select Movie:</h5>
+                <select id="movieSelect" class="form-control mb-4">
+                    <option value="Thor Ragnarok">Thor Ragnarok</option>
+                    <option value="Spider Man">Spider Man</option>
+                    <option value="Iron Man">Iron Man</option>
+                    <option value="Lion King">Lion King</option>
+                    <option value="Captain America">Captain America</option>
+                    <option value="Avengers">Avengers</option>
+                </select>
+                <p class="card-text">Number of Tickets: <span id="ticketCount">0</span></p>
+                <p class="card-text">Base Price per Ticket: ₹<span id="basePrice">200</span></p>
+                <p class="card-text">Total Price: ₹<span id="totalPrice">0</span></p>
+                <form id="bookingForm">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" class="form-control" id="name" placeholder="Enter your name" required>
+                        <div class="invalid-feedback">
+                            Name should be at least 3 characters long and should not contain digits.
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" placeholder="Enter your email" required>
+                        <div class="invalid-feedback">
+                            Please provide a valid email address.
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone</label>
+                        <input type="text" class="form-control" id="phone" placeholder="Enter your phone number" required>
+                        <div class="invalid-feedback">
+                            Phone number must be 10 digits long and contain only digits.
+                        </div>
+                    </div>
+                    <h6>Select Seats:</h6>
+                    <div id="seatSelection">
+                        <!-- Seat selection interface will be dynamically generated here -->
+                    </div>
+                    <button type="submit" class="btn btn-primary">Confirm Booking</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="receipt" class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title">Booking Receipt</h5>
+                <p><strong>Booking ID:</strong> <span id="bookingId"></span></p>
+                <p><strong>Movie:</strong> <span id="receiptMovie"></span></p>
+                <p><strong>Name:</strong> <span id="receiptName"></span></p>
+                <p><strong>Phone:</strong> <span id="receiptPhone"></span></p>
+                <p><strong>Seats:</strong> <span id="receiptSeats"></span></p>
+                <p><strong>Total Price:</strong> ₹<span id="receiptTotalPrice"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="footer-col">
+                    <h4>Movie Theater</h4>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Our Services</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Affiliate Program</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Help & Support</h4>
+                    <ul>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Booking Assistance</a></li>
+                        <li><a href="#">Payment Options</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Book Tickets</h4>
+                    <ul>
+                        <li><a href="#">Movie</a></li>
+                        <li><a href="#">Theater</a></li>
+                        <li><a href="#">Showtimes</a></li>
+                        <li><a href="#">Seats</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Follow Us</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="booking.js"></script>
+
+    </script>
+
+  
+</body>
+
+</html>

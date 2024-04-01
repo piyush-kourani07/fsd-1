@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Booking</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="footer-style.css">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <style>
+        /* Custom styles can be added here */
+        .seat {
+            width: 40px;
+            height: 40px;
+            margin: 5px;
+            background-color: #ccc;
+            display: inline-block;
+            cursor: pointer;
+            border-radius: 5px;
+            position: relative;
+        }
+
+        .selected {
+            background-color: #007bff !important;
+            color: #fff;
+        }
+
+        .booked {
+            background-color: #666666 !important;
+            cursor: not-allowed;
+        }
+
+        .disabled {
+            background-color: #ff0000 !important;
+            cursor: not-allowed;
+        }
+
+        .seat-number {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+        }
+
+        #receipt {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container my-4">
+        <h1>Movie Booking</h1>
+        <p>Complete your booking details below:</p>
+
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Selected Movie: Movie 1</h5>
+                <p class="card-text">Number of Tickets: <span id="ticketCount">0</span></p>
+                <p class="card-text">Base Price per Ticket: $<span id="basePrice">10</span></p>
+                <p class="card-text">Total Price: $<span id="totalPrice">0</span></p>
+                <form id="bookingForm">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" class="form-control" id="name" placeholder="Enter your name" required>
+                        <div class="invalid-feedback">
+                            Name should be at least 3 characters long and should not contain digits.
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" placeholder="Enter your email" required>
+                        <div class="invalid-feedback">
+                            Please provide a valid email address.
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone</label>
+                        <input type="text" class="form-control" id="phone" placeholder="Enter your phone number" required>
+                        <div class="invalid-feedback">
+                            Phone number must be 10 digits long and contain only digits.
+                        </div>
+                    </div>
+                    <h6>Select Seats:</h6>
+                    <div id="seatSelection">
+                        <!-- Seat selection interface will be dynamically generated here -->
+                    </div>
+                    <button type="submit" class="btn btn-primary">Confirm Booking</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="receipt" class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title">Booking Receipt</h5>
+                <p><strong>Booking ID:</strong> <span id="bookingId"></span></p>
+                <p><strong>Name:</strong> <span id="receiptName"></span></p>
+                <p><strong>Phone:</strong> <span id="receiptPhone"></span></p>
+                <p><strong>Seats:</strong> <span id="receiptSeats"></span></p>
+                <p><strong>Total Price:</strong> $<span id="receiptTotalPrice"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Define the number of rows and columns for the seat selection grid
+            const numRows = 5;
+            const numCols = 10;
+            const basePrice = 10; // Base price per ticket
+            const premiumPrice = 5; // Additional price for premium seats
+            const bookedSeats = ['1E', '5E', '5F']; // Example of already booked seats
+            const disabledSeats = ['1A', '3B', '2C']; // Example of disabled seats
+
+            let selectedSeats = [];
+
+            // Generate the seat selection interface
+            for (let i = 1; i <= numRows; i++) {
+                let row = $('<div class="row mb-2">');
+                for (let j = 1; j <= numCols; j++) {
+                    let seatNumber = i + String.fromCharCode(64 + j);
+                    let seat = $('<div class="seat">').text(seatNumber);
+                    if (bookedSeats.includes(seatNumber)) {
+                        seat.addClass('booked').prop('disabled', true);
+                    } else if (disabledSeats.includes(seatNumber)) {
+                        seat.addClass('disabled').prop('disabled', true);
+                    }
+                    row.append(seat);
+                }
+                $('#seatSelection').append(row);
+            }
+
+            // Handle seat selection
+            $('.seat').click(function() {
+                if (!$(this).hasClass('booked') && !$(this).hasClass('disabled')) {
+                    let seat = $(this).text();
+                    if (!selectedSeats.includes(seat)) {
+                        if (selectedSeats.length >= 3) {
+                            alert('You can select a maximum of 3 seats.');
+                            return;
+                        }
+                        selectedSeats.push(seat);
+                        $(this).addClass('selected');
+                    } else {
+                        selectedSeats = selectedSeats.filter(item => item !== seat);
+                        $(this).removeClass('selected');
+                    }
+                    updateTotalPrice();
+                }
+            });
+
+            // Update total price based on the number of selected seats
+            function updateTotalPrice() {
+                let totalPrice = selectedSeats.length * basePrice;
+                // Check if any selected seats are premium and add premium price
+                selectedSeats.forEach(function(seat) {
+                    if (isPremium(seat)) {
+                        totalPrice += premiumPrice;
+                    }
+                });
+                $('#ticketCount').text(selectedSeats.length);
+                $('#totalPrice').text(totalPrice);
+            }
+
+            // Check if the seat is premium
+            function isPremium(seat) {
+                // Example premium seats logic
+                return seat[0] === 'A' || seat[0] === 'E'; // Rows A and E are considered premium
+            }
+
+            // Validate form before submission
+            $('#bookingForm').submit(function(event) {
+                // Validate name
+                const name = $('#name').val();
+                if (name.length < 3 || /\d/.test(name)) {
+                    $('#name').addClass('is-invalid');
+                    alert('Name should be at least 3 characters long and should not contain digits.');
+                    event.preventDefault();
+                    return;
+                }
+
+                // Validate phone number
+                const phoneNumber = $('#phone').val();
+                if (phoneNumber.length !== 10 || !/^\d+$/.test(phoneNumber)) {
+                    $('#phone').addClass('is-invalid');
+                    alert('Phone number must be 10 digits long and contain only digits.');
+                    event.preventDefault();
+                    return;
+                }
+
+                if ($('#seatSelection .selected').length === 0) {
+                    alert('Please select at least one seat.');
+                    event.preventDefault();
+                } else {
+                    event.preventDefault();
+                    displayReceipt();
+                }
+            });
+
+            // Remove is-invalid class on input change
+            $('#name, #phone').change(function() {
+                $(this).removeClass('is-invalid');
+            });
+
+            // Function to display booking receipt
+            function displayReceipt() {
+                const bookingId = generateBookingId();
+                const name = $('#name').val();
+                const phone = $('#phone').val();
+                const seats = selectedSeats.join(', ');
+                const totalPrice = calculateTotalPrice();
+
+                $('#bookingId').text(bookingId);
+                $('#receiptName').text(name);
+                $('#receiptPhone').text(phone);
+                $('#receiptSeats').text(seats);
+                $('#receiptTotalPrice').text(totalPrice);
+
+                $('#receipt').show();
+            }
+
+            // Function to generate a random booking ID
+            function generateBookingId() {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                let bookingId = '';
+                for (let i = 0; i < 8; i++) {
+                    bookingId += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                return bookingId;
+            }
+
+            // Function to calculate total price
+            function calculateTotalPrice() {
+                let totalPrice = selectedSeats.length * basePrice;
+                selectedSeats.forEach(function(seat) {
+                    if (isPremium(seat)) {
+                        totalPrice += premiumPrice;
+                    }
+                });
+                return totalPrice;
+            }
+        });
+    </script>
+</body>
+
+</html>
